@@ -1,0 +1,27 @@
+.main {
+  height: calc(100vh - 84px);
+  background-image: url(../img/bg.jpg);
+  background-repeat: no-repeat;
+  background-size: cover;
+
+  &__overlay {
+    width: 100%;
+    height: calc(100vh - 84px);
+    background-color: rgba(147, 147, 132, 0.7);
+
+    /* Create fade anumation */
+    // opacity: 0;
+    transition: all 1s;
+  }
+
+  &__inner {
+    position: relative;
+    display: grid;
+    grid-template-columns: 4fr 3fr;
+    grid-template-rows: 70px auto 150px;
+    gap: 2rem;
+    width: 100%;
+    height: calc(100vh - 84px);
+    padding-top: 50px;
+  }
+}

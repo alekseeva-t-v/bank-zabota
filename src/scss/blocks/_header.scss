@@ -1,27 +1,60 @@
 .header {
-	background-color: rgb(195, 220, 231);
-	padding: 50px 0;
-
-	&__row {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-	}
+  padding: 10px 0;
 }
 
-.overlay {
-  position: fixed;
-  width: 100vw;
-  height: 100%;
-  top: 0;
-  background-color: rgba(41, 41, 41, 0.6);
-  opacity: 0;
-  pointer-events: none;
-  transition: 0.5s all;
+.nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 2rem;
+
+  &__welcome {
+    font-family: var(--font-accent);
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--page-bg);
+  }
 }
 
-.overlay--active {
-  opacity: 1;
-  pointer-events: all;
-  transition: 0.5s all;
+.login {
+  display: flex;
+
+  &__input {
+    padding: 0.5rem 2rem;
+    margin-right: 1rem;
+    font-size: 20px;
+    font-family: inherit;
+    text-align: center;
+    border: none;
+    border-radius: 10rem;
+    color: inherit;
+    border: 1px solid #e6d3ac;
+    transition: all 0.3s;
+  }
+}
+
+.login__input:focus {
+  outline: none;
+  border: 1px solid var(--accent);
+}
+
+.login__input::placeholder {
+  color: rgb(105, 105, 105);
+}
+
+.login__btn {
+  border: none;
+  background: none;
+  font-size: 2.2rem;
+  color: inherit;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.login__btn:hover,
+.login__btn:focus,
+.btn--sort:hover,
+.btn--sort:focus {
+  outline: none;
+  color: var(--accent);
 }

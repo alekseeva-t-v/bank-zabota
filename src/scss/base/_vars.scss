@@ -2,19 +2,18 @@
   --container-width: 1200px;
   --container-padding: 15px;
 
-  --font-main: 'Poppins', sans-serif;
-  --font-accent: 'Playfair Display', serif;
+  --font-main: 'IBM Plex Sans', sans-serif;
+  --font-accent: 'IBM Plex Serif', serif;
 
-  --page-bg: #ffffff;
-  --text-color: #000000;
-  --accent: #ac182c;
+  --page-bg: #f3f3f3;
+  --text-color: #444444;
+  --accent: #ae9065;
+  --accent-light: #e6d3ac;
+  --wars: #f0270d;
+  --wars-light: #f15a46;
 
   --laptop-size: 1199px;
   --tablet-size: 959px;
   --mobile-size: 599px;
 }
 
-.dark {
-  --page-bg: #252526;
-  --text-color: #fff;
-}

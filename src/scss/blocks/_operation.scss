@@ -1,0 +1,17 @@
+.operation {
+  border-radius: 1rem;
+  padding: 15px;
+  color: #333;
+}
+
+.operation--transfer {
+  background-image: linear-gradient(to top left, #547202, #b7d433);
+}
+
+.operation--loan {
+  background-image: linear-gradient(to top left, #068394, #40dad2);
+}
+
+.operation--close {
+  background-image: linear-gradient(to top left, #e93c07, #d36c71);
+}

@@ -1,12 +1,23 @@
 <header class="header">
-  <div class="overlay"></div>
   <div class="container">
-    <div class="header__row">
-      <div class="logo">Logo</div>
-      <button class="mobile-nav-btn">
-        <div class="nav-icon"></div>
-      </button>
-    </div>
+    <nav class="nav">
+      <img class="logo" src="./img/logo.png" alt="logo" />
+      <p class="nav__welcome">Войдите в свой аккаунт</p>
+      <form class="login">
+        <input
+          class="login__input login__input--user"
+          type="text"
+          placeholder="user"
+        />
+        <input
+          class="login__input login__input--pin"
+          type="text"
+          placeholder="PIN"
+          maxlength="4"
+        />
+        <button class="login__btn">➤</button>
+      </form>
+    </nav>
   </div>
 </header>
 

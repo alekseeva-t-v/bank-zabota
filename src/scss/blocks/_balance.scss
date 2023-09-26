@@ -1,0 +1,25 @@
+.balance {
+  grid-column: 1 / span 2;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  color: var(--page-bg);
+
+  &__label {
+    font-family: var(--font-accent);
+    font-size: 2.5rem;
+    font-weight: 500;
+    margin-bottom: 10px;
+    margin-right: 30px;
+  }
+
+  &__date {
+    font-size: 1.4rem;
+    color: var(--accent-light);
+  }
+
+  &__value {
+    font-size: 4.5rem;
+    font-weight: 400;
+  }
+}
