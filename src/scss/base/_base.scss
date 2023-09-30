@@ -1,8 +1,12 @@
 html {
+  height: 100%;
+  min-height: 100vh;
   scroll-behavior: smooth;
 }
 
 body {
+  height: 100%;
+  min-height: 100vh;
   background-color: var(--page-bg);
   color: var(--text-color);
   font-family: var(--font-main);
@@ -14,5 +18,12 @@ h2 {
   font-size: 22px;
   font-weight: 400;
   color: var(--page-bg);
+}
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  flex: 1 0 auto;
 }
 

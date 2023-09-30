@@ -1,16 +1,16 @@
 .main {
-  height: calc(100vh - 84px);
+  flex-grow: 1;
   background-image: url(../img/bg.jpg);
   background-repeat: no-repeat;
   background-size: cover;
 
   &__overlay {
     width: 100%;
-    height: calc(100vh - 84px);
+    height: 100%;
     background-color: rgba(147, 147, 132, 0.7);
 
     /* Create fade anumation */
-    // opacity: 0;
+    opacity: 0;
     transition: all 1s;
   }
 
@@ -21,7 +21,7 @@
     grid-template-rows: 70px auto 150px;
     gap: 2rem;
     width: 100%;
-    height: calc(100vh - 84px);
+    height: 100%;
     padding-top: 50px;
   }
 }

@@ -7,7 +7,7 @@ const DOM = {
   labelSumInterest: document.querySelector('.total__value--interest'),
   labelTimer: document.querySelector('.timer'),
 
-  containerMain: document.querySelector('.main'),
+  containerMain: document.querySelector('.main__overlay'),
   containerTransactions: document.querySelector('.transactions'),
 
   btnLogin: document.querySelector('.login__btn'),

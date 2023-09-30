@@ -48,23 +48,25 @@ function createNicknames(accList) {
 /**
  * Вычисляет и выводит на экран сумму средств после всех транзакций
  *
- * @param {transactions} accList массив транзакций.
+ * @param {object} account Объект данных конкретного аккаунта.
  */
-function displayBalance(transactions) {
-  const balance = transactions.reduce(
+function displayBalance(account) {
+  const balance = account.transactions.reduce(
     (acc, transaction) => acc + transaction,
     0
   );
+
+  account.balance = balance;
   DOM.labelBalance.innerHTML = `${balance}₽`;
 }
 
 /**
  * Вычисляет и отображает на странице суммы, депозитов, спмсаний и процентов
  *
- * @param {transactions} accList массив транзакций.
+ * @param {object} account Объект данных конкретного аккаунта.
  */
-function displayTotal(transactions) {
-  const depositeTotal = transactions
+function displayTotal(account) {
+  const depositeTotal = account.transactions
     .filter((transaction) => {
       return transaction > 0;
     })
@@ -73,7 +75,7 @@ function displayTotal(transactions) {
     }, 0);
   DOM.labelSumIn.textContent = `${depositeTotal}₽`;
 
-  const withdrawalsTotal = transactions
+  const withdrawalsTotal = account.transactions
     .filter((transaction) => {
       return transaction < 0;
     })
@@ -82,12 +84,12 @@ function displayTotal(transactions) {
     }, 0);
   DOM.labelSumOut.textContent = `${withdrawalsTotal}₽`;
 
-  const interestTotal = transactions
+  const interestTotal = account.transactions
     .filter((transaction) => {
       return transaction > 0;
     })
     .map((deposit) => {
-      return deposit * 0.1;
+      return (deposit * account.interest) / 100;
     })
     .filter((interes) => {
       return interes >= 500;
@@ -98,7 +100,55 @@ function displayTotal(transactions) {
   DOM.labelSumInterest.textContent = `${interestTotal}₽`;
 }
 
-diplayTransactions(account1.transactions);
+function updateUI(account) {
+  diplayTransactions(account.transactions);
+  displayBalance(account);
+  displayTotal(account);
+}
+
+let currentAccount;
+
+DOM.btnLogin.addEventListener('click', (event) => {
+  event.preventDefault();
+  currentAccount = accounts.find((account) => {
+    return account.nickName === DOM.inputLoginUsername.value;
+  });
+
+  if (currentAccount?.pin === Number(DOM.inputLoginPin.value)) {
+    const currentAccountName = currentAccount.userName.split(' ')[0];
+    DOM.labelWelcome.textContent = `Рады, что Вы снова с нами, ${currentAccountName}`;
+    DOM.containerMain.style.opacity = '1';
+
+    DOM.inputLoginUsername.value = '';
+    DOM.inputLoginPin.value = '';
+    DOM.inputLoginPin.blur();
+
+    updateUI(currentAccount)
+  }
+});
+
+DOM.btnTransfer.addEventListener('click', (event) => {
+  event.preventDefault();
+  const transferAmount = Number(DOM.inputTransferAmount.value);
+  const recipientNickname = DOM.inputTransferTo.value;
+  const recipientAccount = accounts.find((account) => {
+    return account.nickName === recipientNickname;
+  });
+
+  DOM.inputTransferAmount.value = '';
+  DOM.inputTransferTo.value = '';
+  DOM.inputTransferAmount.blur();
+
+  if (
+    transferAmount > 0 &&
+    currentAccount.balance >= transferAmount &&
+    recipientAccount &&
+    currentAccount.nickName !== recipientAccount?.nickName
+  ) {
+    currentAccount.transactions.push(-transferAmount);
+    recipientAccount.transactions.push(transferAmount);
+    updateUI(currentAccount)
+  }
+});
+
 createNicknames(accounts);
-displayBalance(account1.transactions);
-displayTotal(account1.transactions);
