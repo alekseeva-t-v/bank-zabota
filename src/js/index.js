@@ -169,4 +169,20 @@ DOM.btnClose.addEventListener('click', (event) => {
   }
 });
 
+DOM.btnLoan.addEventListener('click', (event) => {
+  event.preventDefault();
+  const loanAmmount = Number(DOM.inputLoanAmount.value);
+
+  if (
+    loanAmmount > 0 &&
+    currentAccount.transactions.some(
+      (transaction) => transaction >= (loanAmmount * 10) / 100
+    )
+  ) {
+    currentAccount.transactions.push(loanAmmount);
+    updateUI(currentAccount);
+    DOM.inputLoanAmount.value = '';
+  }
+});
+
 createNicknames(accounts);
