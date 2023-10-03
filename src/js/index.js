@@ -123,7 +123,7 @@ DOM.btnLogin.addEventListener('click', (event) => {
     DOM.inputLoginPin.value = '';
     DOM.inputLoginPin.blur();
 
-    updateUI(currentAccount)
+    updateUI(currentAccount);
   }
 });
 
@@ -147,7 +147,25 @@ DOM.btnTransfer.addEventListener('click', (event) => {
   ) {
     currentAccount.transactions.push(-transferAmount);
     recipientAccount.transactions.push(transferAmount);
-    updateUI(currentAccount)
+    updateUI(currentAccount);
+  }
+});
+
+DOM.btnClose.addEventListener('click', (event) => {
+  event.preventDefault();
+
+  if (
+    DOM.inputCloseUsername.value === currentAccount.nickName &&
+    Number(DOM.inputClosePin.value) === currentAccount.pin
+  ) {
+    const indexCloseAccount = accounts.findIndex((account) => {
+      return account.pin === currentAccount.pin;
+    });
+    accounts.splice(indexCloseAccount, 1);
+    DOM.containerMain.style.opacity = '0';
+    DOM.labelWelcome.textContent = 'Войдите в свой аккаунт';
+    DOM.inputClosePin.value = '';
+    DOM.inputCloseUsername.value = '';
   }
 });
 
