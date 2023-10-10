@@ -23,6 +23,8 @@ const DOM = {
   inputLoanAmount: document.querySelector('.form__input--loan-amount'),
   inputCloseUsername: document.querySelector('.form__input--user'),
   inputClosePin: document.querySelector('.form__input--pin'),
+
+  logoImage: document.querySelector('.logo')
 };
 
 export default DOM;

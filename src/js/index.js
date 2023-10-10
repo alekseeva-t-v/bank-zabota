@@ -1,29 +1,52 @@
 import DOM from './modules/dom-elements.js';
-import { account1 } from './modules/accounts.js';
-import { account2 } from './modules/accounts.js';
-import { account3 } from './modules/accounts.js';
-import { account4 } from './modules/accounts.js';
-import { account5 } from './modules/accounts.js';
 import { accounts } from './modules/accounts.js';
+
+let transactionsSorted = false;
+
+function getDaysBeetween2Dates(date1, date2) {
+  return Math.round(Math.abs((date2 - date1) / (1000 * 60 * 60 * 24)));
+}
+
+function formatTransactionDate(date, locale) {
+  const daysPassed = getDaysBeetween2Dates(new Date(), date);
+
+  if (daysPassed === 0) return 'Сегодня';
+  if (daysPassed === 1) return 'Вчера';
+  if (daysPassed <= 4) return `${daysPassed} дня назад`;
+  if (daysPassed <= 7) return `${daysPassed} дней назад`;
+  else {
+    return new Intl.DateTimeFormat(locale).format(
+      date
+    );;
+  }
+}
 
 /**
  * Формирует и размещает на странице список транзакций.
  *
- * @param {array} transactions массив транзакций.
+ * @param {object} account объект аккаунта
  */
-function diplayTransactions(transactions) {
+function diplayTransactions(account, sort = false) {
   DOM.containerTransactions.innerHTML = '';
 
-  transactions.forEach((transaction, index) => {
+  const transacs = sort
+    ? account.transactions.slice().sort((x, y) => x - y)
+    : account.transactions;
+
+  transacs.forEach((transaction, index) => {
     const transType = transaction > 0 ? 'deposit' : 'withdrawal';
     const transTypeName = transaction > 0 ? 'депозит' : 'вывод средств';
+
+    const date = new Date(account.transactionsDates[index]);
+    const transDate = formatTransactionDate(date, account.locale);
 
     const transactionRow = `
     <div class="transactions__row">
       <div class="transactions__type transactions__type--${transType}">${
       index + 1
     } ${transTypeName}</div>
-      <div class="transactions__value">${transaction}</div>
+      <div class="transactions__date">${transDate}</div>
+      <div class="transactions__value">${transaction.toFixed(2)}</div>
     </div>`;
 
     DOM.containerTransactions.insertAdjacentHTML('afterbegin', transactionRow);
@@ -57,7 +80,7 @@ function displayBalance(account) {
   );
 
   account.balance = balance;
-  DOM.labelBalance.innerHTML = `${balance}₽`;
+  DOM.labelBalance.innerHTML = `${balance.toFixed(2)}₽`;
 }
 
 /**
@@ -73,7 +96,7 @@ function displayTotal(account) {
     .reduce((acc, transaction) => {
       return acc + transaction;
     }, 0);
-  DOM.labelSumIn.textContent = `${depositeTotal}₽`;
+  DOM.labelSumIn.textContent = `${depositeTotal.toFixed(2)}₽`;
 
   const withdrawalsTotal = account.transactions
     .filter((transaction) => {
@@ -82,7 +105,7 @@ function displayTotal(account) {
     .reduce((acc, transaction) => {
       return acc + transaction;
     }, 0);
-  DOM.labelSumOut.textContent = `${withdrawalsTotal}₽`;
+  DOM.labelSumOut.textContent = `${withdrawalsTotal.toFixed(2)}₽`;
 
   const interestTotal = account.transactions
     .filter((transaction) => {
@@ -97,11 +120,16 @@ function displayTotal(account) {
     .reduce((acc, interes) => {
       return acc + interes;
     }, 0);
-  DOM.labelSumInterest.textContent = `${interestTotal}₽`;
+  DOM.labelSumInterest.textContent = `${interestTotal.toFixed(2)}₽`;
 }
 
+/**
+ * Вызывает все функции обновляющие интерфейс
+ *
+ * @param {object} account Объект данных конкретного аккаунта.
+ */
 function updateUI(account) {
-  diplayTransactions(account.transactions);
+  diplayTransactions(account);
   displayBalance(account);
   displayTotal(account);
 }
@@ -124,6 +152,22 @@ DOM.btnLogin.addEventListener('click', (event) => {
     DOM.inputLoginPin.blur();
 
     updateUI(currentAccount);
+
+    const now = new Date();
+    const options = {
+      hour: 'numeric',
+      minute: 'numeric',
+      day: 'numeric',
+      month: '2-digit',
+      year: 'numeric',
+      weekday: 'long',
+    };
+
+    const locale = currentAccount.locale;
+
+    DOM.labelDate.textContent = new Intl.DateTimeFormat(locale, options).format(
+      now
+    );
   }
 });
 
@@ -146,7 +190,9 @@ DOM.btnTransfer.addEventListener('click', (event) => {
     currentAccount.nickName !== recipientAccount?.nickName
   ) {
     currentAccount.transactions.push(-transferAmount);
+    currentAccount.transactionsDates.push(new Date().toISOString());
     recipientAccount.transactions.push(transferAmount);
+    recipientAccount.transactionsDates.push(new Date().toISOString());
     updateUI(currentAccount);
   }
 });
@@ -171,7 +217,7 @@ DOM.btnClose.addEventListener('click', (event) => {
 
 DOM.btnLoan.addEventListener('click', (event) => {
   event.preventDefault();
-  const loanAmmount = Number(DOM.inputLoanAmount.value);
+  const loanAmmount = Math.floor(DOM.inputLoanAmount.value);
 
   if (
     loanAmmount > 0 &&
@@ -180,9 +226,34 @@ DOM.btnLoan.addEventListener('click', (event) => {
     )
   ) {
     currentAccount.transactions.push(loanAmmount);
+    currentAccount.transactionsDates.push(new Date().toISOString());
     updateUI(currentAccount);
     DOM.inputLoanAmount.value = '';
   }
 });
 
+DOM.btnSort.addEventListener('click', (event) => {
+  event.preventDefault();
+  diplayTransactions(currentAccount, !transactionsSorted);
+  transactionsSorted = !transactionsSorted;
+});
+
 createNicknames(accounts);
+
+const bankBalance = accounts
+  .flatMap((account) => {
+    return account.transactions;
+  })
+  .reduce((acc, currentAccount) => {
+    return acc + currentAccount;
+  }, 0);
+
+console.log(bankBalance);
+
+DOM.logoImage.addEventListener('click', () => {
+  [...document.querySelectorAll('.transactions__row')].forEach((row, index) => {
+    if (index % 2 === 0) {
+      row.style.background = 'rgba(68, 68, 68, 0.2)';
+    }
+  });
+});
