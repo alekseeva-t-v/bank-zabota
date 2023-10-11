@@ -15,10 +15,15 @@ function formatTransactionDate(date, locale) {
   if (daysPassed <= 4) return `${daysPassed} дня назад`;
   if (daysPassed <= 7) return `${daysPassed} дней назад`;
   else {
-    return new Intl.DateTimeFormat(locale).format(
-      date
-    );;
+    return new Intl.DateTimeFormat(locale).format(date);
   }
+}
+
+function formatCurrency(value, locale, currency) {
+  return new Intl.NumberFormat(locale, {
+    style: 'currency',
+    currency: currency,
+  }).format(value);
 }
 
 /**
@@ -40,13 +45,15 @@ function diplayTransactions(account, sort = false) {
     const date = new Date(account.transactionsDates[index]);
     const transDate = formatTransactionDate(date, account.locale);
 
+    const formatedTrans = formatCurrency(transaction, account.locale, account.currency);
+
     const transactionRow = `
     <div class="transactions__row">
       <div class="transactions__type transactions__type--${transType}">${
       index + 1
     } ${transTypeName}</div>
       <div class="transactions__date">${transDate}</div>
-      <div class="transactions__value">${transaction.toFixed(2)}</div>
+      <div class="transactions__value">${formatedTrans}</div>
     </div>`;
 
     DOM.containerTransactions.insertAdjacentHTML('afterbegin', transactionRow);
@@ -80,7 +87,7 @@ function displayBalance(account) {
   );
 
   account.balance = balance;
-  DOM.labelBalance.innerHTML = `${balance.toFixed(2)}₽`;
+  DOM.labelBalance.innerHTML = formatCurrency(balance, account.locale, account.currency);
 }
 
 /**
@@ -96,7 +103,7 @@ function displayTotal(account) {
     .reduce((acc, transaction) => {
       return acc + transaction;
     }, 0);
-  DOM.labelSumIn.textContent = `${depositeTotal.toFixed(2)}₽`;
+  DOM.labelSumIn.textContent = formatCurrency(depositeTotal, account.locale, account.currency);
 
   const withdrawalsTotal = account.transactions
     .filter((transaction) => {
@@ -105,7 +112,7 @@ function displayTotal(account) {
     .reduce((acc, transaction) => {
       return acc + transaction;
     }, 0);
-  DOM.labelSumOut.textContent = `${withdrawalsTotal.toFixed(2)}₽`;
+  DOM.labelSumOut.textContent = formatCurrency(withdrawalsTotal, account.locale, account.currency);
 
   const interestTotal = account.transactions
     .filter((transaction) => {
@@ -120,7 +127,7 @@ function displayTotal(account) {
     .reduce((acc, interes) => {
       return acc + interes;
     }, 0);
-  DOM.labelSumInterest.textContent = `${interestTotal.toFixed(2)}₽`;
+  DOM.labelSumInterest.textContent = formatCurrency(interestTotal, account.locale, account.currency);
 }
 
 /**
