@@ -2,11 +2,27 @@ import DOM from './modules/dom-elements.js';
 import { accounts } from './modules/accounts.js';
 
 let transactionsSorted = false;
+let currentAccount;
+let currentLogoutTimer;
 
+/**
+ * Возвращает разницу между двумя датами в сутках.
+ *
+ * @param {object} date1 Объект начальной даты.
+ * @param {object} date2 Объект конечной даты.
+ * @return {number} разница между датами в сутках.
+ */
 function getDaysBeetween2Dates(date1, date2) {
   return Math.round(Math.abs((date2 - date1) / (1000 * 60 * 60 * 24)));
 }
 
+/**
+ * Форматирует дату для корректного отображения в приложении.
+ *
+ * @param {object} date исходная дата для обработки.
+ * @param {string} locale локаль.
+ * @return {string} отформатированная дата, которую необходимо отобразить в приложении.
+ */
 function formatTransactionDate(date, locale) {
   const daysPassed = getDaysBeetween2Dates(new Date(), date);
 
@@ -19,6 +35,14 @@ function formatTransactionDate(date, locale) {
   }
 }
 
+/**
+ * Форматирует отображение денежных средств, с учетом локали и валюты.
+ *
+ * @param {number} value исходное количество денежных единиц.
+ * @param {string} locale локаль.
+ * @param {string} currency валюта.
+ * @return {string} отформатированная строка с количеством денежных единиц, которую необходимо отобразить в приложении.
+ */
 function formatCurrency(value, locale, currency) {
   return new Intl.NumberFormat(locale, {
     style: 'currency',
@@ -30,6 +54,7 @@ function formatCurrency(value, locale, currency) {
  * Формирует и размещает на странице список транзакций.
  *
  * @param {object} account объект аккаунта
+ * @param {boolean} sort параметр, который показывает требуется или нет сортировка списка транзакций
  */
 function diplayTransactions(account, sort = false) {
   DOM.containerTransactions.innerHTML = '';
@@ -45,7 +70,11 @@ function diplayTransactions(account, sort = false) {
     const date = new Date(account.transactionsDates[index]);
     const transDate = formatTransactionDate(date, account.locale);
 
-    const formatedTrans = formatCurrency(transaction, account.locale, account.currency);
+    const formatedTrans = formatCurrency(
+      transaction,
+      account.locale,
+      account.currency
+    );
 
     const transactionRow = `
     <div class="transactions__row">
@@ -87,11 +116,15 @@ function displayBalance(account) {
   );
 
   account.balance = balance;
-  DOM.labelBalance.innerHTML = formatCurrency(balance, account.locale, account.currency);
+  DOM.labelBalance.innerHTML = formatCurrency(
+    balance,
+    account.locale,
+    account.currency
+  );
 }
 
 /**
- * Вычисляет и отображает на странице суммы, депозитов, спмсаний и процентов
+ * Вычисляет и отображает на странице суммы, депозитов, списаний и процентов
  *
  * @param {object} account Объект данных конкретного аккаунта.
  */
@@ -103,7 +136,11 @@ function displayTotal(account) {
     .reduce((acc, transaction) => {
       return acc + transaction;
     }, 0);
-  DOM.labelSumIn.textContent = formatCurrency(depositeTotal, account.locale, account.currency);
+  DOM.labelSumIn.textContent = formatCurrency(
+    depositeTotal,
+    account.locale,
+    account.currency
+  );
 
   const withdrawalsTotal = account.transactions
     .filter((transaction) => {
@@ -112,7 +149,11 @@ function displayTotal(account) {
     .reduce((acc, transaction) => {
       return acc + transaction;
     }, 0);
-  DOM.labelSumOut.textContent = formatCurrency(withdrawalsTotal, account.locale, account.currency);
+  DOM.labelSumOut.textContent = formatCurrency(
+    withdrawalsTotal,
+    account.locale,
+    account.currency
+  );
 
   const interestTotal = account.transactions
     .filter((transaction) => {
@@ -122,12 +163,18 @@ function displayTotal(account) {
       return (deposit * account.interest) / 100;
     })
     .filter((interes) => {
-      return interes >= 500;
+      return interes >= 5;
     })
     .reduce((acc, interes) => {
       return acc + interes;
     }, 0);
-  DOM.labelSumInterest.textContent = formatCurrency(interestTotal, account.locale, account.currency);
+
+    console.log(interestTotal)
+  DOM.labelSumInterest.textContent = formatCurrency(
+    interestTotal,
+    account.locale,
+    account.currency
+  );
 }
 
 /**
@@ -141,7 +188,33 @@ function updateUI(account) {
   displayTotal(account);
 }
 
-let currentAccount;
+/**
+ * Запускает таймер обратного отсчета выхода из приложения.
+ *
+ * @return {number} идентификатор таймера.
+ */
+function startLogoutTimer() {
+  function logOutTimerCallback() {
+    const minutes = String(Math.trunc(time / 60)).padStart(2, '0');
+    const seconds = String(time % 60).padStart(2, '0');
+    DOM.labelTimer.textContent = `${minutes}:${seconds}`;
+
+    if (time === 0) {
+      clearInterval(logOutTimer);
+      DOM.containerMain.style.opacity = '0';
+      DOM.labelWelcome.textContent = 'Войдите в свой аккаунт';
+    }
+
+    time--;
+  }
+
+  let time = 300;
+
+  logOutTimerCallback();
+  const logOutTimer = setInterval(logOutTimerCallback, 1000);
+
+  return logOutTimer;
+}
 
 DOM.btnLogin.addEventListener('click', (event) => {
   event.preventDefault();
@@ -158,6 +231,9 @@ DOM.btnLogin.addEventListener('click', (event) => {
     DOM.inputLoginPin.value = '';
     DOM.inputLoginPin.blur();
 
+    if (currentLogoutTimer) clearInterval(currentLogoutTimer);
+
+    currentLogoutTimer = startLogoutTimer();
     updateUI(currentAccount);
 
     const now = new Date();
@@ -201,6 +277,9 @@ DOM.btnTransfer.addEventListener('click', (event) => {
     recipientAccount.transactions.push(transferAmount);
     recipientAccount.transactionsDates.push(new Date().toISOString());
     updateUI(currentAccount);
+
+    clearInterval(currentLogoutTimer);
+    currentLogoutTimer = startLogoutTimer();
   }
 });
 
@@ -232,11 +311,16 @@ DOM.btnLoan.addEventListener('click', (event) => {
       (transaction) => transaction >= (loanAmmount * 10) / 100
     )
   ) {
-    currentAccount.transactions.push(loanAmmount);
-    currentAccount.transactionsDates.push(new Date().toISOString());
-    updateUI(currentAccount);
-    DOM.inputLoanAmount.value = '';
+    setTimeout(() => {
+      currentAccount.transactions.push(loanAmmount);
+      currentAccount.transactionsDates.push(new Date().toISOString());
+      updateUI(currentAccount);
+    }, 10000);
   }
+
+  DOM.inputLoanAmount.value = '';
+  clearInterval(currentLogoutTimer);
+  currentLogoutTimer = startLogoutTimer();
 });
 
 DOM.btnSort.addEventListener('click', (event) => {
